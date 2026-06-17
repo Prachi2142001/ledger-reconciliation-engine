@@ -7,7 +7,19 @@ export const parseCsv = (filePath: string): Promise<any[]> => {
 
     fs.createReadStream(filePath)
       .pipe(csv())
-      .on("data", (data) => results.push(data))
+      .on("data", (row) => {
+        console.log("CSV Row:", row);
+
+        const isEmptyRow = Object.values(row).every(
+          (value) => value === "" || value === null || value === undefined,
+        );
+
+        if (isEmptyRow) {
+          return;
+        }
+
+        results.push(row);
+      })
       .on("end", () => resolve(results))
       .on("error", reject);
   });

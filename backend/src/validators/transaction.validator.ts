@@ -4,9 +4,7 @@ export interface ValidationError {
   error: string;
 }
 
-export const validateTransactions = (
-  rows: any[]
-): ValidationError[] => {
+export const validateTransactions = (rows: any[]): ValidationError[] => {
   const errors: ValidationError[] = [];
 
   rows.forEach((row, index) => {
@@ -17,6 +15,13 @@ export const validateTransactions = (
         row: rowNumber,
         field: "date",
         error: "required",
+      });
+    }
+    if (row.date && isNaN(Date.parse(row.date))) {
+      errors.push({
+        row: rowNumber,
+        field: "date",
+        error: "invalid date",
       });
     }
 
@@ -50,15 +55,6 @@ export const validateTransactions = (
         error: "both present",
       });
     }
-
-    if (!hasDebit && !hasCredit) {
-      errors.push({
-        row: rowNumber,
-        field: "debit/credit",
-        error: "neither present",
-      });
-    }
-
     if (hasDebit && isNaN(Number(row.debit))) {
       errors.push({
         row: rowNumber,

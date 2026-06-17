@@ -26,14 +26,16 @@ router.post("/", upload.single("file"), async (req, res) => {
       });
     }
 
-    await saveTransactions(rows);
+    const result = await saveTransactions(rows);
 
     return res.json({
       success: true,
-      totalRows: rows.length,
+      totalRows: result.count,
       message: "Transactions saved successfully",
     });
   } catch (error) {
+    console.error(error);
+
     return res.status(500).json({
       success: false,
       message: "Failed to parse CSV",

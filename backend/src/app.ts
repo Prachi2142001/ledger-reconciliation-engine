@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import uploadRoutes from "./routes/upload.routes";
 import transactionRoutes from "./routes/transaction.routes";
+import reconciliationRoutes from "./routes/reconciliation.routes";
 
 const app = express();
 
@@ -14,5 +15,6 @@ app.get("/", (_, res) => {
 
 app.use("/api/upload", uploadRoutes);
 app.use("/api/transactions", transactionRoutes);
+app.use("/api/reconcile", reconciliationRoutes);
 
 export default app;
