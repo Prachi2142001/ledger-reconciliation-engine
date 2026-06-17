@@ -4,6 +4,7 @@ import { parseCsv } from "../services/csv.service";
 import { validateTransactions } from "../validators/transaction.validator";
 import { saveTransactions } from "../services/transaction.service";
 import { categorizeTransaction } from "../services/categorization.service";
+import { detectRecurringTransactions } from "../services/recurrence.service";
 
 const router = Router();
 
@@ -17,6 +18,9 @@ router.post("/", upload.single("file"), async (req, res) => {
     }
 
     const rows = await parseCsv(req.file.path);
+    const recurring = detectRecurringTransactions(rows);
+
+    console.log("Recurring Transactions:", recurring);
 
     const validationErrors = validateTransactions(rows);
 
