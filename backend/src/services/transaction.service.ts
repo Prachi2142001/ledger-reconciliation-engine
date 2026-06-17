@@ -19,3 +19,22 @@ export const saveTransactions = async (rows: any[]) => {
     data: transactions,
   });
 };
+
+export const getTransactions = async (filters: {
+  accountId?: string;
+  category?: string;
+}) => {
+  return prisma.transaction.findMany({
+    where: {
+      ...(filters.accountId && {
+        accountId: filters.accountId,
+      }),
+      ...(filters.category && {
+        category: filters.category,
+      }),
+    },
+    orderBy: {
+      date: "desc",
+    },
+  });
+};

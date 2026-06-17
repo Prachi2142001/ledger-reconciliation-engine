@@ -7,21 +7,29 @@ import {
   detectBothDebitCredit,
   detectNeitherDebitCredit,
   detectTransfers,
+  getSummary,
 } from "../services/reconciliation.service";
 
 export const reconcileTransactions = async (req: Request, res: Response) => {
   const transactions = await prisma.transaction.findMany();
+
   const runningBalanceIssues = checkRunningBalance(transactions);
+
   const duplicateIssues = detectDuplicates(transactions);
+
   const outOfOrderIssues = detectOutOfOrderDates(transactions);
+
   const bothIssues = detectBothDebitCredit(transactions);
+
   const neitherIssues = detectNeitherDebitCredit(transactions);
+
   const transfers = detectTransfers(transactions);
 
-  const issues = checkRunningBalance(transactions);
+  const summary = await getSummary();
 
   res.json({
     success: true,
+    summary,
     runningBalanceIssues,
     duplicateIssues,
     outOfOrderIssues,

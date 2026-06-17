@@ -1,3 +1,6 @@
+import prisma from "../config/prisma";
+import { detectRecurringTransactions } from "./recurrence.service";
+
 export const checkRunningBalance = (transactions: any[]) => {
   const issues: any[] = [];
 
@@ -128,10 +131,9 @@ export const detectTransfers = (transactions: any[]) => {
         creditTx.accountId !== debitTx.accountId &&
         creditTx.credit === debitTx.debit &&
         Math.abs(
-          new Date(creditTx.date).getTime() -
-            new Date(debitTx.date).getTime()
+          new Date(creditTx.date).getTime() - new Date(debitTx.date).getTime(),
         ) <=
-          3 * 24 * 60 * 60 * 1000
+          3 * 24 * 60 * 60 * 1000,
     );
 
     if (match) {
@@ -146,4 +148,51 @@ export const detectTransfers = (transactions: any[]) => {
   }
 
   return matches;
+};
+
+export const getSummary = async () => {
+  const transactions = await prisma.transaction.findMany();
+
+  const totalCredits = transactions.reduce(
+    (sum, tx) => sum + (tx.credit || 0),
+    0,
+  );
+
+  const totalDebits = transactions.reduce(
+    (sum, tx) => sum + (tx.debit || 0),
+    0,
+  );
+
+  const categoryBreakdown = transactions.reduce(
+    (acc: Record<string, number>, tx) => {
+      const category = tx.category || "UNCATEGORISED";
+
+      acc[category] = (acc[category] || 0) + (tx.debit || 0) + (tx.credit || 0);
+
+      return acc;
+    },
+    {},
+  );
+
+  const recurringItems = detectRecurringTransactions(transactions);
+
+  const duplicateFlags = detectDuplicates(transactions);
+
+  const transferMatches = detectTransfers(transactions);
+
+  const balanceIssues = checkRunningBalance(transactions);
+
+  return {
+    totalTransactions: transactions.length,
+    totalCredits,
+    totalDebits,
+    netFlow: totalCredits - totalDebits,
+    categoryBreakdown,
+    recurringItems,
+    flags: {
+      duplicates: duplicateFlags.length,
+      transferMatches: transferMatches.length,
+      balanceIssues: balanceIssues.length,
+    },
+  };
 };
