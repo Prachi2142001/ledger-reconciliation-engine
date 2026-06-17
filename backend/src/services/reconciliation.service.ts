@@ -173,12 +173,33 @@ export const getSummary = async () => {
     },
     {},
   );
+  const accountSummary = transactions.reduce((acc: Record<string, any>, tx) => {
+    if (!acc[tx.accountId]) {
+      acc[tx.accountId] = {
+        accountId: tx.accountId,
+        moneyIn: 0,
+        moneyOut: 0,
+      };
+    }
+
+    acc[tx.accountId].moneyIn += tx.credit || 0;
+    acc[tx.accountId].moneyOut += tx.debit || 0;
+
+    return acc;
+  }, {});
 
   const recurringItems = detectRecurringTransactions(transactions);
 
   const duplicateFlags = detectDuplicates(transactions);
 
   const transferMatches = detectTransfers(transactions);
+
+  const transferAmount = transferMatches.reduce(
+    (sum, tx) => sum + tx.amount,
+    0,
+  );
+
+  const consolidatedTurnover = totalCredits + totalDebits - transferAmount * 2;
 
   const balanceIssues = checkRunningBalance(transactions);
 
@@ -187,6 +208,8 @@ export const getSummary = async () => {
     totalCredits,
     totalDebits,
     netFlow: totalCredits - totalDebits,
+    consolidatedTurnover,
+    accountSummary: Object.values(accountSummary),
     categoryBreakdown,
     recurringItems,
     flags: {
