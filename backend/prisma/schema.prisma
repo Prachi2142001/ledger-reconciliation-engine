@@ -8,22 +8,14 @@ datasource db {
 }
 
 model Transaction {
-  id           String   @id @default(cuid())
-  date         DateTime
-  accountId    String
-  description  String
-
-  debit        Float?
-  credit       Float?
-
-  balance      Float
-
-  counterparty String?
-  channel      String?
-
-  category     String?
-
-  isFlagged    Boolean  @default(false)
-
-  createdAt    DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  date          DateTime
+  accountId     String
+  description   String
+  debit         Float?
+  credit        Float?
+  balance       Float
+  counterparty  String?
+  channel       String?
+  createdAt     DateTime @default(now())
 }

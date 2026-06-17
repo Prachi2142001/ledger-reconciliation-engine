@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import uploadRoutes from "./routes/upload.routes";
+import transactionRoutes from "./routes/transaction.routes";
 
 const app = express();
 
@@ -12,5 +13,6 @@ app.get("/", (_, res) => {
 });
 
 app.use("/api/upload", uploadRoutes);
+app.use("/api/transactions", transactionRoutes);
 
 export default app;

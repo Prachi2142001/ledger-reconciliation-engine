@@ -2,6 +2,7 @@ import { Router } from "express";
 import { upload } from "../middleware/upload.middleware";
 import { parseCsv } from "../services/csv.service";
 import { validateTransactions } from "../validators/transaction.validator";
+import { saveTransactions } from "../services/transaction.service";
 
 const router = Router();
 
@@ -25,10 +26,12 @@ router.post("/", upload.single("file"), async (req, res) => {
       });
     }
 
+    await saveTransactions(rows);
+
     return res.json({
       success: true,
       totalRows: rows.length,
-      data: rows,
+      message: "Transactions saved successfully",
     });
   } catch (error) {
     return res.status(500).json({
