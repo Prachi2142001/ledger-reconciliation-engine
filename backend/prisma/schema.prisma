@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Transaction {
+  id           String   @id @default(cuid())
+  date         DateTime
+  accountId    String
+  description  String
+
+  debit        Float?
+  credit       Float?
+
+  balance      Float
+
+  counterparty String?
+  channel      String?
+
+  category     String?
+
+  isFlagged    Boolean  @default(false)
+
+  createdAt    DateTime @default(now())
+}
