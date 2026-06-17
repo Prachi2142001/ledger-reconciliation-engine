@@ -1,0 +1,35 @@
+# dependencies
+node_modules/
+
+# env files
+.env
+.env.*
+
+# build files
+.next/
+dist/
+
+# uploads
+backend/uploads/
+
+# logs
+*.log
+
+# prisma studio temp
+*.db-journal
+
+# IDE
+.vscode/
+
+# Claude/Cursor generated files
+frontend/AGENTS.md
+frontend/CLAUDE.md
+
+# OS files
+.DS_Store
+
+backend/prisma/*.db
+backend/prisma/*.db-journal
+
+frontend/AGENTS.md
+frontend/CLAUDE.md

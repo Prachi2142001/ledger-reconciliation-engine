@@ -1,0 +1,9 @@
+date,account_id,description,debit,credit,balance,counterparty,channel
+
+2025-01-01,ACC001,Opening Balance,,,10000,,
+
+2025-01-10,ACC001,TRANSFER TO ACC002,2000,,8000,SELF,IMPS
+
+2025-01-01,ACC002,Opening Balance,,,3000,,
+
+2025-01-10,ACC002,TRANSFER FROM ACC001,,2000,5000,SELF,IMPS

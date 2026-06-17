@@ -11,10 +11,12 @@ const storage = multer.diskStorage({
 export const upload = multer({
   storage,
   fileFilter: (_, file, cb) => {
-    const ext = path.extname(file.originalname);
+    const ext = path.extname(file.originalname).toLowerCase();
 
-    if (ext !== ".csv") {
-      return cb(new Error("Only CSV files are allowed"));
+    if (ext !== ".csv" && ext !== ".json") {
+      return cb(
+        new Error("Only CSV and JSON files are allowed")
+      );
     }
 
     cb(null, true);

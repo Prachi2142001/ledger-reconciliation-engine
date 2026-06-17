@@ -5,6 +5,7 @@ import { validateTransactions } from "../validators/transaction.validator";
 import { saveTransactions } from "../services/transaction.service";
 import { categorizeTransaction } from "../services/categorization.service";
 import { detectRecurringTransactions } from "../services/recurrence.service";
+import fs from "fs";
 
 const router = Router();
 
@@ -17,7 +18,22 @@ router.post("/", upload.single("file"), async (req, res) => {
       });
     }
 
-    const rows = await parseCsv(req.file.path);
+    let rows: any[] = [];
+
+    const ext = req.file.originalname.split(".").pop()?.toLowerCase();
+
+    if (ext === "csv") {
+      rows = await parseCsv(req.file.path);
+    } else if (ext === "json") {
+      const fileContent = fs.readFileSync(req.file.path, "utf-8");
+
+      rows = JSON.parse(fileContent);
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Unsupported file type",
+      });
+    }
     const recurring = detectRecurringTransactions(rows);
 
     console.log("Recurring Transactions:", recurring);

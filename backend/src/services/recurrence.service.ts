@@ -1,9 +1,15 @@
 export const detectRecurringTransactions = (
-  transactions: any[]
+  transactions: any[],
 ) => {
   const groups = new Map<string, any[]>();
 
-  transactions.forEach((txn) => {
+  const filteredTransactions = transactions.filter(
+    (tx) =>
+      tx.description &&
+      !tx.description.toLowerCase().includes("opening balance"),
+  );
+
+  filteredTransactions.forEach((txn) => {
     const amount = txn.credit || txn.debit;
 
     const key = `${txn.description}_${amount}`;
@@ -25,7 +31,7 @@ export const detectRecurringTransactions = (
     const sorted = txns.sort(
       (a, b) =>
         new Date(a.date).getTime() -
-        new Date(b.date).getTime()
+        new Date(b.date).getTime(),
     );
 
     const gaps: number[] = [];
@@ -40,7 +46,7 @@ export const detectRecurringTransactions = (
     }
 
     const monthly = gaps.every(
-      (gap) => gap >= 25 && gap <= 35
+      (gap) => gap >= 25 && gap <= 35,
     );
 
     recurringTransactions.push({

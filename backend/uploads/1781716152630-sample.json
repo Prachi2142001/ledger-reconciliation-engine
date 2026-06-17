@@ -1,0 +1,10 @@
+[
+  {
+    "date": "2025-01-05",
+    "account_id": "ACC001",
+    "description": "ACME PAYROLL JAN SALARY",
+    "debit": "",
+    "credit": 4200,
+    "balance": 14200
+  }
+]

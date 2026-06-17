@@ -1,0 +1,12 @@
+[
+  {
+    "date": "2025-02-01",
+    "account_id": "ACC003",
+    "description": "TEST CREDIT",
+    "debit": "",
+    "credit": 5000,
+    "balance": 5000,
+    "counterparty": "",
+    "channel": "NEFT"
+  }
+]

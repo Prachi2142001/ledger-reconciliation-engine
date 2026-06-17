@@ -14,12 +14,16 @@ export const saveTransactions = async (rows: any[]) => {
     category: categorizeTransaction(row.description || ""),
   }));
 
-  console.log(JSON.stringify(transactions, null, 2));
+  await prisma.transaction.deleteMany();
+
+  await prisma.$executeRawUnsafe(
+    "DELETE FROM sqlite_sequence WHERE name='Transaction'",
+  );
+
   return prisma.transaction.createMany({
     data: transactions,
   });
 };
-
 export const getTransactions = async (filters: {
   accountId?: string;
   category?: string;
