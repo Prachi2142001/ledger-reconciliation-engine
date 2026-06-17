@@ -3,6 +3,7 @@ import { upload } from "../middleware/upload.middleware";
 import { parseCsv } from "../services/csv.service";
 import { validateTransactions } from "../validators/transaction.validator";
 import { saveTransactions } from "../services/transaction.service";
+import { categorizeTransaction } from "../services/categorization.service";
 
 const router = Router();
 

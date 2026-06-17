@@ -8,8 +8,7 @@ export const parseCsv = (filePath: string): Promise<any[]> => {
     fs.createReadStream(filePath)
       .pipe(csv())
       .on("data", (row) => {
-        console.log("CSV Row:", row);
-
+       
         const isEmptyRow = Object.values(row).every(
           (value) => value === "" || value === null || value === undefined,
         );
