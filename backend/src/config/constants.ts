@@ -1,0 +1,3 @@
+export const TRANSFER_WINDOW_DAYS = 3;
+export const RECURRENCE_MIN_COUNT = 2;
+export const RECURRENCE_AMOUNT_TOLERANCE = 50;

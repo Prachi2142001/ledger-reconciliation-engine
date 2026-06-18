@@ -198,6 +198,35 @@ Returns:
 
 ---
 
+# Example Summary Output
+
+```json
+{
+  "totalTransactions": 8,
+  "totalCredits": 6200,
+  "totalDebits": 4450,
+  "netFlow": 1750,
+  "consolidatedTurnover": 6650,
+  "accountSummary": [
+    {
+      "accountId": "ACC001",
+      "moneyIn": 4200,
+      "moneyOut": 2450
+    }
+  ],
+  "categoryBreakdown": {
+    "SALARY": 4200,
+    "FOOD": 650,
+    "EMI": 1800
+  },
+  "flags": {
+    "duplicates": 0,
+    "transferMatches": 0,
+    "balanceIssues": 0
+  }
+}
+```
+
 # Transfer Matching Heuristic
 
 A debit transaction is paired with a credit transaction when:
@@ -210,6 +239,36 @@ A debit transaction is paired with a credit transaction when:
 When multiple matches exist, the earliest unmatched transaction is selected.
 
 Matched transfers are excluded from consolidated turnover to avoid double counting.
+
+---
+
+# Recurrence Detection Heuristic
+
+Recurring transactions are detected using deterministic logic.
+
+Transactions are grouped by:
+
+- Description
+- Amount
+
+A transaction is considered recurring when:
+
+1. Description remains similar.
+2. Amount remains stable.
+3. It appears more than once.
+
+Examples:
+
+- Salary
+- EMI
+- Subscription payments
+
+The engine returns:
+
+- Description
+- Amount
+- Count
+- Frequency
 
 ---
 
@@ -233,11 +292,8 @@ sample-data/
 ledger-reconciliation-engine
 │
 ├── backend
-│
 ├── frontend
-│
 ├── sample-data
-│
 └── README.md
 ```
 
@@ -263,3 +319,14 @@ rules.json → Override default categories → Categorization service → Dashbo
 - Export reports
 - Pagination
 - Multi-user support
+
+# Assumptions
+
+- Transactions are processed in ascending date order per account.
+- Opening balance rows may contain neither debit nor credit.
+- Balances are rounded to two decimal places.
+- Transfer matching uses a configurable ±1 day window.
+- If multiple transfer candidates exist, the earliest unmatched transaction is selected.
+- User category rules override default rules.
+
+

@@ -1,10 +1,12 @@
 import prisma from "../config/prisma";
 import { detectRecurringTransactions } from "./recurrence.service";
+import { TRANSFER_WINDOW_DAYS } from "../config/constants";
+import { Transaction, AccountSummary } from "../types/transaction.types";
 
-export const checkRunningBalance = (transactions: any[]) => {
+export const checkRunningBalance = (transactions: Transaction[]) => {
   const issues: any[] = [];
 
-  const accounts = transactions.reduce((acc: any, tx: any) => {
+  const accounts = transactions.reduce((acc: any, tx: Transaction) => {
     if (!acc[tx.accountId]) {
       acc[tx.accountId] = [];
     }
@@ -17,7 +19,7 @@ export const checkRunningBalance = (transactions: any[]) => {
     const rows = accounts[accountId];
 
     rows.sort(
-      (a: any, b: any) =>
+      (a: Transaction, b: Transaction) =>
         new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
 
@@ -43,7 +45,7 @@ export const checkRunningBalance = (transactions: any[]) => {
   return issues;
 };
 
-export const detectDuplicates = (transactions: any[]) => {
+export const detectDuplicates = (transactions: Transaction[]) => {
   const issues: any[] = [];
   const seen = new Set();
 
@@ -71,14 +73,17 @@ export const detectDuplicates = (transactions: any[]) => {
   return issues;
 };
 
-export const detectOutOfOrderDates = (transactions: any[]) => {
+export const detectOutOfOrderDates = (transactions: Transaction[]) => {
   const issues: any[] = [];
 
-  const accounts = transactions.reduce((acc: any, tx: any) => {
-    if (!acc[tx.accountId]) acc[tx.accountId] = [];
-    acc[tx.accountId].push(tx);
-    return acc;
-  }, {});
+  const accounts = transactions.reduce(
+    (acc: Record<string, Transaction[]>, tx: Transaction) => {
+      if (!acc[tx.accountId]) acc[tx.accountId] = [];
+      acc[tx.accountId].push(tx);
+      return acc;
+    },
+    {},
+  );
 
   for (const accountId in accounts) {
     const rows = accounts[accountId];
@@ -99,7 +104,7 @@ export const detectOutOfOrderDates = (transactions: any[]) => {
   return issues;
 };
 
-export const detectBothDebitCredit = (transactions: any[]) => {
+export const detectBothDebitCredit = (transactions: Transaction[]) => {
   return transactions
     .filter((tx) => tx.debit && tx.credit)
     .map((tx) => ({
@@ -109,7 +114,7 @@ export const detectBothDebitCredit = (transactions: any[]) => {
     }));
 };
 
-export const detectNeitherDebitCredit = (transactions: any[]) => {
+export const detectNeitherDebitCredit = (transactions: Transaction[]) => {
   return transactions
     .filter((tx) => !tx.debit && !tx.credit)
     .map((tx) => ({
@@ -119,11 +124,11 @@ export const detectNeitherDebitCredit = (transactions: any[]) => {
     }));
 };
 
-export const detectTransfers = (transactions: any[]) => {
+export const detectTransfers = (transactions: Transaction[]) => {
   const matches: any[] = [];
 
-  const debits = transactions.filter((t) => t.debit);
-  const credits = transactions.filter((t) => t.credit);
+  const debits : Transaction[]= transactions.filter((t) => t.debit);
+  const credits : Transaction[] = transactions.filter((t) => t.credit);
 
   for (const debitTx of debits) {
     const match = credits.find(
@@ -133,7 +138,7 @@ export const detectTransfers = (transactions: any[]) => {
         Math.abs(
           new Date(creditTx.date).getTime() - new Date(debitTx.date).getTime(),
         ) <=
-          3 * 24 * 60 * 60 * 1000,
+          TRANSFER_WINDOW_DAYS * 24 * 60 * 60 * 1000,
     );
 
     if (match) {
@@ -173,7 +178,8 @@ export const getSummary = async () => {
     },
     {},
   );
-  const accountSummary = transactions.reduce((acc: Record<string, any>, tx) => {
+  const accountSummary = transactions.reduce(
+  (acc: Record<string, AccountSummary>, tx)  => {
     if (!acc[tx.accountId]) {
       acc[tx.accountId] = {
         accountId: tx.accountId,

@@ -16,12 +16,11 @@ export const validateTransactions = (rows: any[]): ValidationError[] => {
         field: "date",
         error: "required",
       });
-    }
-    if (row.date && isNaN(Date.parse(row.date))) {
+    } else if (isNaN(Date.parse(row.date))) {
       errors.push({
         row: rowNumber,
         field: "date",
-        error: "invalid date",
+        error: "invalid date format",
       });
     }
 
@@ -33,9 +32,18 @@ export const validateTransactions = (rows: any[]): ValidationError[] => {
       });
     }
 
+    if (!row.description) {
+      errors.push({
+        row: rowNumber,
+        field: "description",
+        error: "required",
+      });
+    }
+
     if (
       row.balance === "" ||
       row.balance === undefined ||
+      row.balance === null ||
       isNaN(Number(row.balance))
     ) {
       errors.push({
@@ -45,8 +53,15 @@ export const validateTransactions = (rows: any[]): ValidationError[] => {
       });
     }
 
-    const hasDebit = row.debit !== "";
-    const hasCredit = row.credit !== "";
+    const hasDebit =
+      row.debit !== "" && row.debit !== undefined && row.debit !== null;
+
+    const hasCredit =
+      row.credit !== "" && row.credit !== undefined && row.credit !== null;
+
+    const isOpeningBalance =
+      row.description &&
+      row.description.toUpperCase().includes("OPENING BALANCE");
 
     if (hasDebit && hasCredit) {
       errors.push({
@@ -55,6 +70,15 @@ export const validateTransactions = (rows: any[]): ValidationError[] => {
         error: "both present",
       });
     }
+
+    if (!hasDebit && !hasCredit && !isOpeningBalance) {
+      errors.push({
+        row: rowNumber,
+        field: "debit/credit",
+        error: "neither present",
+      });
+    }
+
     if (hasDebit && isNaN(Number(row.debit))) {
       errors.push({
         row: rowNumber,
