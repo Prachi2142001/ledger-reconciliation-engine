@@ -5,7 +5,9 @@ export const categorizeTransaction = (description: string): string => {
   const text = description.toUpperCase();
 
   for (const rule of USER_CATEGORY_RULES) {
-    const matched = rule.keywords.some((keyword) => text.includes(keyword));
+    const matched = rule.keywords.some((keyword: string) =>
+      text.includes(keyword.toUpperCase())
+    );
 
     if (matched) {
       return rule.category;
@@ -13,7 +15,9 @@ export const categorizeTransaction = (description: string): string => {
   }
 
   for (const rule of DEFAULT_CATEGORY_RULES) {
-    const matched = rule.keywords.some((keyword) => text.includes(keyword));
+    const matched = rule.keywords.some((keyword: string) =>
+      text.includes(keyword.toUpperCase())
+    );
 
     if (matched) {
       return rule.category;

@@ -1,11 +1,10 @@
 import { Router } from "express";
+import fs from "fs";
 import { upload } from "../middleware/upload.middleware";
 import { parseCsv } from "../services/csv.service";
 import { validateTransactions } from "../validators/transaction.validator";
 import { saveTransactions } from "../services/transaction.service";
-import { categorizeTransaction } from "../services/categorization.service";
 import { detectRecurringTransactions } from "../services/recurrence.service";
-import fs from "fs";
 
 const router = Router();
 
@@ -25,15 +24,15 @@ router.post("/", upload.single("file"), async (req, res) => {
     if (ext === "csv") {
       rows = await parseCsv(req.file.path);
     } else if (ext === "json") {
-      const fileContent = fs.readFileSync(req.file.path, "utf-8");
-
-      rows = JSON.parse(fileContent);
+      const content = fs.readFileSync(req.file.path, "utf-8");
+      rows = JSON.parse(content);
     } else {
       return res.status(400).json({
         success: false,
         message: "Unsupported file type",
       });
     }
+
     const recurring = detectRecurringTransactions(rows);
 
     console.log("Recurring Transactions:", recurring);
@@ -59,7 +58,7 @@ router.post("/", upload.single("file"), async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "Failed to parse CSV",
+      message: "Failed to parse file",
     });
   }
 });

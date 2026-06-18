@@ -13,10 +13,8 @@ export const upload = multer({
   fileFilter: (_, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
 
-    if (ext !== ".csv" && ext !== ".json") {
-      return cb(
-        new Error("Only CSV and JSON files are allowed")
-      );
+    if (![".csv", ".json"].includes(ext.toLowerCase())) {
+      return cb(new Error("Only CSV and JSON files are allowed"));
     }
 
     cb(null, true);

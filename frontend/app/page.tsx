@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 
 import UploadSection from "@/src/components/UploadSection";
@@ -10,11 +10,14 @@ import RecurringTransactions from "@/src/components/RecurringTransactions";
 import CategoryBreakdown from "@/src/components/CategoryBreakdown";
 import TransactionFilters from "@/src/components/TransactionFilters";
 import TransactionTable from "@/src/components/TransactionTable";
+import RulesUploadSection from "@/src/components/RuleUploadSection";
 
 const API_URL = "http://localhost:5000";
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
+  const [rulesFile, setRulesFile] = useState<File | null>(null);
+  const rulesFileInputRef = useRef<HTMLInputElement>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -53,6 +56,17 @@ export default function Home() {
 
     setLoading(false);
     setFile(null);
+  };
+
+  const uploadRules = async () => {
+    if (!rulesFile) return;
+
+    const formData = new FormData();
+    formData.append("file", rulesFile);
+
+    await axios.post(`${API_URL}/api/rules`, formData);
+
+    setRulesFile(null);
   };
 
   const flaggedIds = new Set([
@@ -99,6 +113,11 @@ export default function Home() {
           loading={loading}
         />
 
+        <RulesUploadSection
+          rulesFile={rulesFile}
+          setRulesFile={setRulesFile}
+          uploadRules={uploadRules}
+        />
         {summary && (
           <>
             <SummaryCards summary={summary} />
